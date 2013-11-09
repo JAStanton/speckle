@@ -67,9 +67,9 @@ Game.prototype.mouseUp_ = function(e){
   if(this.superMode) {
     var superDotColor = this.superDot.getColor();
     // Destroy all dots of this color. I know, racist.
-    this.board.forEachDot(function(potentialDot){
-      if (potentialDot.getColor() == superDotColor) {
-        potentialDot.remove();
+    this.board.forEachDot(function(dot){
+      if (dot.getColor() == superDotColor) {
+        this.board.removedDot(dot);
       }
     }.bind(this));
     this.superMode = false;

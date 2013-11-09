@@ -74,7 +74,7 @@ Game.Dot.prototype.remove = function() {
 
 Game.Dot.prototype.domReady = function() {
   this.el$_.data("dot", this);
-  this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
+  // this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
   // console.log(this.gridPosition_.row + ", " + this.gridPosition_.col)
 };
 
@@ -110,7 +110,7 @@ Game.Dot.prototype.setGridPosition = function(row, col, centerOffsets) {
     "left": x,
     "top": y
   });
-  this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
+  // this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
 }
 
 Game.Dot.prototype.getGridPosition = function() {

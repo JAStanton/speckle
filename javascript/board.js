@@ -128,7 +128,6 @@ Game.Board.prototype.clearSelectedDots = function() {
 }
 
 Game.Board.prototype.deleteSelectedDots = function() {
-  // TODO(jstanton): this shit is modifying the array as I'm working on it.
   this.forEachSelectedDot(function(dot){
     this.sliceDotOutOfColumn(dot);
     dot.remove();
