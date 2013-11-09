@@ -1,20 +1,37 @@
 var Game = function(board$) {
   window["a"] = this;
   this.body$ = $("body");
-  this.board = new Game.Board(board$);
-
   this.cursor_ = new Game.Cursor();
-  this.header_;
-  this.setupHeader_();
-  this.state_ = Game.CURSOR_STATES.none;
+  this.cursorState_ = Game.CURSOR_STATES.none;
+  this.gameState_ = Game.STATES.playing;
+  this.mode = Game.MODES.moves;
   this.bindEvents_();
+
   this.superMode = false;
   this.superDot = {};
 
   this.score_ = 0;
   this.moves_ = Game.INITIAL_MOVES;
   this.time_ = Game.INITIAL_TIME;
+  this.board = new Game.Board(board$);
+  this.setupHeader_();
+
+  if(this.mode == Game.MODES.time) this.tick();
 };
+
+Game.MODES = {
+  "time": 0,
+  "moves": 1,
+}
+
+Game.STATES = {
+  "playing": 0,
+  "over": 1
+}
+
+Game.INITIAL_MOVES = 30;
+
+Game.INITIAL_TIME = 61;
 
 Game.CURSOR_STATES = {
   "none": 0,
@@ -22,7 +39,9 @@ Game.CURSOR_STATES = {
 };
 
 Game.prototype.setupHeader_ = function() {
-  this.header_ = new Game.Header(Game.Header.MODES.moves);
+  this.scoreBoard_ = new Game.ScoreBoard(this.mode);
+  this.scoreBoard_.updateScore(0);
+  this.scoreBoard_.updateMoves(this.moves_);
 }
 
 Game.prototype.bindEvents_ = function() {
@@ -38,8 +57,20 @@ Game.prototype.resize_ = function(){
   this.board.redraw();
 };
 
+Game.prototype.setGameState = function(state) {
+  this.gameState_ = state;
+  if(state == Game.STATES.over){
+    this.board.disableBoard_();
+  }
+}
+
+Game.prototype.getGameState = function() {
+  return this.gameState_;
+}
+
 Game.prototype.mouseMove_ = function(e){
-  if(this.state_ != Game.CURSOR_STATES.dragging) {
+  if(this.cursorState_ != Game.CURSOR_STATES.dragging ||
+    this.getGameState() == Game.STATES.over) {
     return;
   }
 
@@ -59,6 +90,7 @@ Game.prototype.mouseUp_ = function(e){
     this.board.clearSelectedDots();
     return;
   }
+  this.increaseMoves();
 
   if(this.superMode) {
     var superDotColor = this.superDot.getColor();
@@ -66,12 +98,14 @@ Game.prototype.mouseUp_ = function(e){
     this.board.forEachDot(function(dot){
       if (dot.getColor() == superDotColor) {
         this.board.removedDot(dot);
+        this.increaseScore();
       }
     }.bind(this));
     this.superMode = false;
   } else {
     this.board.forEachSelectedDot(function(dot){
       this.board.removedDot(dot);
+      this.increaseScore();
     }.bind(this));
   }
 
@@ -79,6 +113,9 @@ Game.prototype.mouseUp_ = function(e){
 };
 
 Game.prototype.mouseDownDot_ = function(e){
+  if(this.getGameState() == Game.STATES.over) {
+    return;
+  }
   if(e.which != 1) return; // only left click
   this.setCursorState(Game.CURSOR_STATES.dragging);
 
@@ -92,7 +129,8 @@ Game.prototype.mouseDownDot_ = function(e){
 };
 
 Game.prototype.mouseOverDot_ = function(e){
-  if(this.state_ != Game.CURSOR_STATES.dragging) {
+  if(this.cursorState_ != Game.CURSOR_STATES.dragging ||
+    this.getGameState() == Game.STATES.over) {
     return;
   }
 
@@ -141,5 +179,34 @@ Game.prototype.mouseOverDot_ = function(e){
 };
 
 Game.prototype.setCursorState = function(state) {
-  this.state_ = state;
+  this.cursorState_ = state;
 };
+
+
+
+/* Scoring */
+
+Game.prototype.decreaseTime = function() {
+  this.scoreBoard_.updateTime(--this.time_);
+}
+
+Game.prototype.increaseScore = function() {
+  this.scoreBoard_.updateScore(++this.score_);
+}
+
+Game.prototype.increaseMoves = function() {
+  this.scoreBoard_.updateMoves(--this.moves_);
+  if(this.mode == Game.MODES.moves &&
+    this.moves_ == 0 ) {
+    this.setGameState(Game.STATES.over);
+  }
+}
+
+Game.prototype.tick = function() {
+  this.decreaseTime();
+  if(this.time_ <= 0) {
+    this.setGameState(Game.STATES.over);
+    return;
+  }
+  setTimeout(this.tick.bind(this), 1000);
+}

@@ -10,9 +10,9 @@ Game.Board = function(board$) {
   this.setupBoard_();
 };
 
-Game.Board.NUM_ROWS = 8;
+Game.Board.NUM_ROWS = 6;
 
-Game.Board.NUM_COLS = 8;
+Game.Board.NUM_COLS = 6;
 
 Game.Board.prototype.redraw = function() {
   this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
@@ -22,6 +22,14 @@ Game.Board.prototype.redraw = function() {
         position.row, position.col, this.centerOffsets);
   };
 };
+
+Game.Board.prototype.disableBoard_ = function() {
+  this.el$_.addClass("disabled");
+}
+
+Game.Board.prototype.enableBoard_ = function() {
+  this.el$_.removeClass("disabled");
+}
 
 Game.Board.prototype.setupBoard_ = function() {
   for (var col = 0; col < Game.Board.NUM_COLS; col++) {
