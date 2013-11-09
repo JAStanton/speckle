@@ -1,0 +1,180 @@
+Game.Board = function(board$) {
+  this.el$_ = board$;
+
+  this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
+  this.dots_ = [];
+  this.selectedDots_ = [];
+  this.dotsByColumn_ = [];
+
+  this.setupBoard_();
+};
+
+Game.Board.NUM_ROWS = 8;
+
+Game.Board.NUM_COLS = 8;
+
+Game.Board.prototype.redraw = function() {
+  this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
+  for (var i = 0; i < this.dots_.length; i++) {
+    var position = this.dots_[i].getGridPosition();
+    this.dots_[i].setGridPosition(
+        position.row, position.col, this.centerOffsets);
+  };
+};
+
+Game.Board.prototype.setupBoard_ = function() {
+  for (var col = 0; col < Game.Board.NUM_COLS; col++) {
+    columnOfItems = [];
+    for (var row = 0; row < Game.Board.NUM_ROWS; row++) {
+      var dot = this.newDot(row, col, false);
+      columnOfItems.push(dot);
+    }
+    this.dotsByColumn_.push(columnOfItems);
+  };
+};
+
+
+// Dot Management
+
+Game.Board.prototype.newDot = function(row, col) {
+  var dot = new Game.Dot();
+  dot.setGridPosition(row, col, this.centerOffsets);
+  dot.appendTo(this.el$_);
+  this.dots_.push(dot);
+  dot.domReady();
+
+  return dot;
+};
+
+Game.Board.prototype.prependDot = function(row, col) {
+  var dot = new Game.Dot();
+  dot.setGridPosition(row, col, this.centerOffsets);
+  dot.appendTo(this.el$_);
+  this.dots_.push(dot);
+  this.dotsByColumn_[col].unshift(dot);
+  dot.domReady();
+
+  return dot;
+};
+
+Game.Board.prototype.getDotsByColor = function(colorClass) {
+  var dots = [];
+
+  this.forEachDot(function(dot){
+    if (dot.getColor() == colorClass) {
+      dots.push(dot);
+    }
+  });
+
+  return dots;
+};
+
+Game.Board.prototype.numDotsInCol = function(col) {
+  return this.dotsByColumn_[col].length;
+};
+
+// Dot Selection Management
+Game.Board.prototype.forEachSelectedDotAboveDot = function(dot, fn) {
+  var dotPosition = dot.getGridPosition();
+  var column = this.dotsByColumn_[dotPosition.col];
+
+  for (var i = 0; i < column.length; i++) {
+    if(column[i].getGridPosition().row < dotPosition.row) {
+      fn(column[i]);
+    }
+  };
+}
+
+Game.Board.prototype.debugDots = function(dots) {
+  for (var i = 0; i < dots.length; i++) {
+    var position = dots[i].getGridPosition();
+    console.log(position.row,position.col);
+  };
+}
+
+Game.Board.prototype.forEachDot = function(fn) {
+  for (var col = 0; col < this.dotsByColumn_.length; col++) {
+    for (var row = 0; row < this.dotsByColumn_[col].length; row++) {
+      fn(this.dotsByColumn_[col][row]);
+    }
+  }
+};
+
+Game.Board.prototype.selectDot = function(dot) {
+  this.selectedDots_.push(dot);
+  dot.select();
+}
+
+Game.Board.prototype.clearSelectedDots = function() {
+  this.selectedDots_ = [];
+}
+
+Game.Board.prototype.deleteSelectedDots = function() {
+  // TODO(jstanton): this shit is modifying the array as I'm working on it.
+  this.forEachSelectedDot(function(dot){
+    this.sliceDotOutOfColumn(dot);
+    dot.remove();
+  }.bind(this));
+
+  this.selectedDots_ = [];
+}
+
+
+Game.Board.prototype.sliceDotOutOfColumn = function(dot) {
+  var dotPosition = dot.getGridPosition();
+  var column = this.dotsByColumn_[dotPosition.col];
+  for (var i = 0; i < column.length; i++) {
+    if(column[i] == dot) {
+      this.dotsByColumn_[dotPosition.col].splice(i, 1);
+      break;
+    }
+  };
+}
+
+Game.Board.prototype.selectedDotsEqual = function(dot, index) {
+  return this.selectedDots_[index] === dot;
+}
+
+Game.Board.prototype.dotThatWillUnlink = function(dot) {
+  return this.selectedDots_[this.selectedDots_.length - 2] === dot;
+};
+
+Game.Board.prototype.countSelectedDots = function() {
+  return this.selectedDots_.length;
+}
+
+Game.Board.prototype.popSelectDots = function() {
+  var poppedDot = this.selectedDots_.pop();
+  return poppedDot;
+}
+
+Game.Board.prototype.isDotSelected = function(dotA) {
+  var isSame = false;
+  this.forEachSelectedDot(function(dotB){
+    if(dotA === dotB){
+      isSame = true;
+      return true;
+    }
+  });
+  return isSame;
+}
+
+Game.Board.prototype.forEachSelectedDot = function(fn) {
+  for (var i = 0; i < this.selectedDots_.length; i++) {
+    fn(this.selectedDots_[i]);
+  };
+}
+
+// Use cases for querying / modifying dots
+// 1) Shift dots from row to row.
+//  solution: pop and shift off of the column array. order matters.
+//  downside: maintain position inside each dot object
+// 2) grab all the dots above a certain row
+// solution: slice a column array.
+// downside: maintain position inside each dot object
+// 3) grab all dots with the same color,
+// Solution iterate over all columns,
+// 4) mouse events on dots.
+// solution3 save the object on the dom element via jquery
+// 5) maintain a list of selected dots.
+// solution: maintain just cols & indicies, manage all get, set, removes.
