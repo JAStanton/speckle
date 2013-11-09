@@ -148,10 +148,6 @@ Game.Board.prototype.sliceDotOutOfColumn = function(dot) {
   };
 }
 
-Game.Board.prototype.selectedDotsEqual = function(dot, index) {
-  return this.selectedDots_[index] === dot;
-}
-
 Game.Board.prototype.dotThatWillUnlink = function(dot) {
   return this.selectedDots_[this.selectedDots_.length - 2] === dot;
 };
@@ -181,17 +177,3 @@ Game.Board.prototype.forEachSelectedDot = function(fn) {
     fn(this.selectedDots_[i]);
   };
 }
-
-// Use cases for querying / modifying dots
-// 1) Shift dots from row to row.
-//  solution: pop and shift off of the column array. order matters.
-//  downside: maintain position inside each dot object
-// 2) grab all the dots above a certain row
-// solution: slice a column array.
-// downside: maintain position inside each dot object
-// 3) grab all dots with the same color,
-// Solution iterate over all columns,
-// 4) mouse events on dots.
-// solution3 save the object on the dom element via jquery
-// 5) maintain a list of selected dots.
-// solution: maintain just cols & indicies, manage all get, set, removes.
