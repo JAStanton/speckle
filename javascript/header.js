@@ -22,8 +22,7 @@ Game.Header.prototype.buildHeader_ = function() {
     var $header = $(
         '<span class="timePanel">Time <span class="time">30</span></span>');
   }else {
-    var $header = $('<span class="movesPanel">Moves <span class="moves">' +
-        Game.INITIAL_MOVES + '</span></span>');
+    var $header = $('<span class="movesPanel">Moves <span class="moves">0</span></span>');
   }
 
   // todo: move this to a(n automated) domReady if possible.

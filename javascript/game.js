@@ -73,9 +73,13 @@ Game.prototype.mouseUp_ = function(e){
       }
     }.bind(this));
     this.superMode = false;
+  } else {
+    this.board.forEachSelectedDot(function(dot){
+      this.board.removedDot(dot);
+    }.bind(this));
   }
 
-  this.replenishDots();
+  this.board.deleteSelectedDots();
 };
 
 Game.prototype.mouseDownDot_ = function(e){
@@ -159,37 +163,38 @@ Game.prototype.setCursorState = function(state) {
 };
 
 Game.prototype.replenishDots = function() {
-  var dotsToAnimate = [];
-  var columnsToAddDotsTo = {};
-  this.board.forEachSelectedDot(function(originDot){
-    var originDotPosition = originDot.getGridPosition();
-    if(!columnsToAddDotsTo[originDotPosition.col]) {
-      columnsToAddDotsTo[originDotPosition.col] = 0;
-    }
-    columnsToAddDotsTo[originDotPosition.col]++;
-    this.board.forEachSelectedDotAboveDot(originDot, function(dotAbove){
-        dotsToAnimate.push(dotAbove);
-    }.bind(this));
-  }.bind(this));
 
-  for (var i = 0; i < dotsToAnimate.length; i++) {
-    var dotsToAnimatePosition = dotsToAnimate[i].getNewGridPosition();
-    var newRow = dotsToAnimatePosition.row + 1;
-    dotsToAnimate[i].setNewGridPosition(
-        new Game.Point(newRow, dotsToAnimatePosition.col))
-    dotsToAnimate[i].animateNewGridPosition();
-  };
+  // var dotsToAnimate = [];
+  // var columnsToAddDotsTo = {};
+  // this.board.forEachSelectedDot(function(originDot){
+  //   var originDotPosition = originDot.getGridPosition();
+  //   if(!columnsToAddDotsTo[originDotPosition.col]) {
+  //     columnsToAddDotsTo[originDotPosition.col] = 0;
+  //   }
+  //   columnsToAddDotsTo[originDotPosition.col]++;
+  //   this.board.forEachDotAboveDot(originDot, function(dotAbove){
+  //       dotsToAnimate.push(dotAbove);
+  //   }.bind(this));
+  // }.bind(this));
 
-  this.board.deleteSelectedDots();
+  // for (var i = 0; i < dotsToAnimate.length; i++) {
+  //   var dotsToAnimatePosition = dotsToAnimate[i].getNewGridPosition();
+  //   var newRow = dotsToAnimatePosition.row + 1;
+  //   dotsToAnimate[i].setNewGridPosition(
+  //       new Game.Point(newRow, dotsToAnimatePosition.col))
+  //   dotsToAnimate[i].animateNewGridPosition();
+  // };
 
-  for(var col in columnsToAddDotsTo) {
-    var num = columnsToAddDotsTo[col];
-    while(num > 0) {
-      setTimeout(function(num, col){
-        this.board.prependDot(num - 1, parseInt(col, 10));
-      }.bind(this), 200, num, col)
-      num--;
-    }
-  }
+  // this.board.deleteSelectedDots();
+
+  // for(var col in columnsToAddDotsTo) {
+  //   var num = columnsToAddDotsTo[col];
+  //   while(num > 0) {
+  //     setTimeout(function(num, col){
+  //       this.board.prependDot(num - 1, parseInt(col, 10));
+  //     }.bind(this), 200, num, col)
+  //     num--;
+  //   }
+  // }
 
 };

@@ -35,6 +35,27 @@ Game.Board.prototype.setupBoard_ = function() {
 
 
 // Dot Management
+Game.Board.prototype.removedDot = function(dot) {
+  var dotPosition = dot.getGridPosition();
+  var dotsToAnimate = [];
+  // I add these to an array essentially so I don't modify my dots array as I
+  // itterate.
+  this.forEachDotAboveDot(dot, function(dot){
+    dotsToAnimate.push(dot);
+  });
+
+  for (var i = 0; i < dotsToAnimate.length; i++) {
+    var dotsToAnimatePosition = dotsToAnimate[i].getNewGridPosition();
+    var newRow = dotsToAnimatePosition.row + 1;
+    dotsToAnimate[i].setNewGridPosition(
+        new Game.Point(newRow, dotsToAnimatePosition.col))
+    dotsToAnimate[i].animateNewGridPosition();
+  };
+
+  this.sliceDotOutOfColumn(dot);
+  dot.remove();
+  this.prependDot(0, dotPosition.col);
+};
 
 Game.Board.prototype.newDot = function(row, col) {
   var dot = new Game.Dot();
@@ -74,14 +95,11 @@ Game.Board.prototype.numDotsInCol = function(col) {
 };
 
 // Dot Selection Management
-Game.Board.prototype.forEachSelectedDotAboveDot = function(dot, fn) {
+Game.Board.prototype.forEachDotAboveDot = function(dot, fn) {
   var dotPosition = dot.getGridPosition();
-  var column = this.dotsByColumn_[dotPosition.col];
-
-  for (var i = 0; i < column.length; i++) {
-    if(column[i].getGridPosition().row < dotPosition.row) {
-      fn(column[i]);
-    }
+  var dotsAbove = this.dotsByColumn_[dotPosition.col].slice(0, dotPosition.row);
+  for (var i = 0; i < dotsAbove.length; i++) {
+    fn(dotsAbove[i]);
   };
 }
 

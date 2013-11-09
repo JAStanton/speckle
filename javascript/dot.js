@@ -67,12 +67,14 @@ Game.Dot.validateMove = function(origin, move) {
 }
 
 Game.Dot.prototype.remove = function() {
-  this.el$_.addClass("fade");
+  this.el$_.addClass("fade").delay(150).queue(function(){
+    $(this).remove()
+  })
 };
 
 Game.Dot.prototype.domReady = function() {
   this.el$_.data("dot", this);
-  // this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
+  this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
   // console.log(this.gridPosition_.row + ", " + this.gridPosition_.col)
 };
 
@@ -108,7 +110,7 @@ Game.Dot.prototype.setGridPosition = function(row, col, centerOffsets) {
     "left": x,
     "top": y
   });
-  // this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
+  this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
 }
 
 Game.Dot.prototype.getGridPosition = function() {
