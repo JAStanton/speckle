@@ -1,8 +1,9 @@
 Game.Board = function(board$) {
   this.el$_ = board$;
-
+  this.body$ = $("body");
   this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
   this.dots_ = [];
+  this.lines_ = [];
   this.selectedDots_ = [];
   this.dotsByColumn_ = [];
 
@@ -33,8 +34,9 @@ Game.Board.prototype.setupBoard_ = function() {
   };
 };
 
-
-// Dot Management
+/**
+ * Dot Managment
+ */
 Game.Board.prototype.removedDot = function(dot) {
   var dotPosition = dot.getGridPosition();
   var dotsToAnimate = [];
@@ -177,3 +179,38 @@ Game.Board.prototype.forEachSelectedDot = function(fn) {
     fn(this.selectedDots_[i]);
   };
 }
+
+
+
+/**
+ * Line Management
+ */
+
+Game.Board.prototype.getCurrentLine = function() {
+  return this.lines_[this.lines_.length - 1]
+}
+
+Game.Board.prototype.removeAllLines = function() {
+  for (var i = 0; i < this.lines_.length; i++) {
+    this.lines_[i].remove();
+  };
+  this.lines_ = [];
+}
+
+Game.Board.prototype.unlinkLastLine = function() {
+  this.lines_.pop().remove();
+}
+
+Game.Board.prototype.connectLine = function(line, dot) {
+  this.selectDot(dot);
+  line.setTo(dot.getCenterPosition());
+  line.setToDot(dot);
+  this.newLine(dot);
+};
+
+Game.Board.prototype.newLine = function(dot) {
+  var line = new Game.Line(dot.getCenterPosition(), dot.getColor());
+  line.appendTo(this.body$);
+  line.setFromDot(dot);
+  this.lines_.push(line);
+};

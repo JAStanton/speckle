@@ -1,13 +1,12 @@
 var Game = function(board$) {
   window["a"] = this;
+  this.body$ = $("body");
   this.board = new Game.Board(board$);
 
   this.cursor_ = new Game.Cursor();
   this.header_;
   this.setupHeader_();
-  this.body$ = $("body");
   this.state_ = Game.CURSOR_STATES.none;
-  this.lines_ = [];
   this.bindEvents_();
   this.superMode = false;
   this.superDot = {};
@@ -45,7 +44,7 @@ Game.prototype.mouseMove_ = function(e){
   }
 
   this.cursor_.mouseMove(e);
-  var currentLine$ = this.lines_[this.lines_.length - 1];
+  var currentLine$ = this.board.getCurrentLine();
   currentLine$.setTo(this.cursor_.getPosition());
 };
 
@@ -53,10 +52,7 @@ Game.prototype.mouseUp_ = function(e){
   this.setCursorState(Game.CURSOR_STATES.none);
 
   // Remove the lines
-  for (var i = 0; i < this.lines_.length; i++) {
-    this.lines_[i].remove();
-  };
-  this.lines_ = [];
+  this.board.removeAllLines();
 
   // Bail early if we've only selected one
   if(this.board.countSelectedDots() <= 1){
@@ -92,7 +88,7 @@ Game.prototype.mouseDownDot_ = function(e){
   // TODO(jstanton): combine these actions.
   //     (requires maintaining lines in board).
   this.board.selectDot(dot);
-  this.newLine(dot);
+  this.board.newLine(dot);
 };
 
 Game.prototype.mouseOverDot_ = function(e){
@@ -102,7 +98,7 @@ Game.prototype.mouseOverDot_ = function(e){
 
   var $over = $(e.target);
   var dot = $over.data("dot");
-  var $currentLine = this.lines_[this.lines_.length - 1];
+  var $currentLine = this.board.getCurrentLine();
   var lineFromDot = $currentLine.getFromDot();
   var numSelected = this.board.countSelectedDots();
   if (!Game.Dot.validateMove(lineFromDot, dot)) {
@@ -114,11 +110,11 @@ Game.prototype.mouseOverDot_ = function(e){
   // out of super mode.
   if(!this.board.isDotSelected(dot)) {
     // I haven't seen this dot yet! Link it!
-    this.connectLine($currentLine, dot);
+    this.board.connectLine($currentLine, dot);
   } else if(numSelected > 1 && this.board.dotThatWillUnlink(dot)) {
     // Ok so I know i've seen the dot before, and as it turns out, this is the
     // dot that will cause me to unlink my chain!
-    this.lines_.pop().remove();
+    this.board.unlinkLastLine();
     var removedDot = this.board.popSelectDots();
     if(this.superDot == removedDot){
       // I just removed the superDot, therefore superMode is off.
@@ -133,7 +129,7 @@ Game.prototype.mouseOverDot_ = function(e){
     // back out easily.
     this.superMode = true;
     this.superDot = dot;
-    this.connectLine($currentLine, dot);
+    this.board.connectLine($currentLine, dot);
 
     this.board.forEachDot(function(potentialDot){
       if (potentialDot.getColor() == dot.getColor()) {
@@ -142,20 +138,6 @@ Game.prototype.mouseOverDot_ = function(e){
     }.bind(this));
 
   } // Phew! we made it out!
-};
-
-Game.prototype.connectLine = function(line, dot) {
-  this.board.selectDot(dot);
-  line.setTo(dot.getCenterPosition());
-  line.setToDot(dot);
-  this.newLine(dot);
-};
-
-Game.prototype.newLine = function(dot) {
-  var line = new Game.Line(dot.getCenterPosition(), dot.getColor());
-  line.appendTo(this.body$);
-  line.setFromDot(dot);
-  this.lines_.push(line);
 };
 
 Game.prototype.setCursorState = function(state) {
