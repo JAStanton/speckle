@@ -1,7 +1,13 @@
 speckle
 =======
 
-A game I have lots of awesome ideas for. These are my 4am notes:
+A game I have lots of awesome ideas for.
+TODOS:
+  - server side integration, am thinking node.js so I can run the same logic both places to validate moves
+  - add tests (what am I crazy!?)
+  - use closure (I'm defintally crazy!)
+
+These are my 4am notes:
 
 Multiplayer
 Bigger board, two people competing to get highest score.
