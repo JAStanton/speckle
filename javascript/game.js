@@ -129,10 +129,7 @@ Game.prototype.mouseDownDot_ = function(e){
   var $clicked = $(e.target);
   var dot = $clicked.data("dot");
 
-  // TODO(jstanton): combine these actions.
-  //     (requires maintaining lines in board).
   this.board.selectDot(dot);
-  this.board.newLine(dot);
 };
 
 Game.prototype.mouseOverDot_ = function(e){

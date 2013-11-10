@@ -120,6 +120,7 @@ Game.Board.prototype.forEachDot = function(fn) {
 Game.Board.prototype.selectDot = function(dot) {
   this.selectedDots_.push(dot);
   dot.select();
+  this.newLine(dot);
 }
 
 Game.Board.prototype.clearSelectedDots = function() {
