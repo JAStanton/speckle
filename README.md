@@ -6,6 +6,7 @@ TODOS:
   - server side integration, am thinking node.js so I can run the same logic both places to validate moves
   - add tests (what am I crazy!?)
   - use closure (I'm defintally crazy!)
+  - better animations, I'm thinking cool particle effects like that one xbox game.
 
 These are my 4am notes:
 
