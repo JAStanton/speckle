@@ -2,7 +2,6 @@ Game.Dot = function(x, y) {
   this.offset_ = {};
   this.position = new Game.Point(x, y);
   this.gridPosition_ = new Game.Point(0, 0);
-  this.newGridPosition_ = new Game.Point(0, 0);
   this.color_ = Game.colors.random();
   this.el$_ = $("<span class='dot " + this.color_ + "' />");
   this.el$_.css({
@@ -95,38 +94,27 @@ Game.Dot.prototype.appendTo = function(el$) {
   this.el$_.appendTo(el$);
 };
 
-Game.Dot.prototype.setGridPosition = function(row, col, centerOffsets) {
-  if(!centerOffsets) {
-    centerOffsets = Game.helpers.calcCenterOffsetForDots();
-  }
+Game.Dot.prototype.setGridPosition = function(row, col) {
   this.gridPosition_ = new Game.Point(row, col);
-  this.newGridPosition_ = new Game.Point(row, col);
 
+  var centerOffsets = Game.helpers.calcCenterOffsetForDots();
   var x = col * Game.Dot.WIDTH + (Game.Dot.PADDING * col) + centerOffsets.offsetLeft;
   var y = row * Game.Dot.HEIGHT + (Game.Dot.PADDING * row) + centerOffsets.offsetTop;
 
-  this.position = new Game.Point(x, y);
-  this.el$_.css({
-    "left": x,
-    "top": y
-  });
+  var endPosition = new Game.Point(x, y);
+  if(!this.position || !this.position.x) {
+    this.position = new Game.Point(x, 0);
+  }
+  new TWEEN.Tween(this.position).to(endPosition).onUpdate( function() {
+    this.el$_.css({
+      "left": this.position.x,
+      "top": this.position.y
+    });
+  }.bind(this)).easing(TWEEN.Easing.Elastic.Out).start();
+
   // this.el$_.html( this.gridPosition_.row + ", " + this.gridPosition_.col );
 }
 
 Game.Dot.prototype.getGridPosition = function() {
   return this.gridPosition_;
-}
-
-Game.Dot.prototype.getNewGridPosition = function() {
-  return this.newGridPosition_;
-}
-
-Game.Dot.prototype.setNewGridPosition = function(position) {
-  this.newGridPosition_ = position;
-
-}
-
-Game.Dot.prototype.animateNewGridPosition = function(delay) {
-  var newGridPosition = this.getNewGridPosition();
-  this.setGridPosition(newGridPosition.row, newGridPosition.col);
 }

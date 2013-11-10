@@ -73,7 +73,8 @@ body > header > span > span {
   font-size: 10px;
   text-align: center;
   color: white;
-  -webkit-transition: top 400ms cubic-bezier(0.745, -0.010, 0.390, 1.640);
+  -webkit-transform: translate3d(0,0,0);
+  /*-webkit-transition: top 400ms cubic-bezier(0.745, -0.010, 0.390, 1.640);*/
 }
 
 .dot:before {

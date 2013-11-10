@@ -17,6 +17,7 @@ var Game = function(board$) {
   this.setupHeader_();
 
   if(this.mode == Game.MODES.time) this.tick();
+  this.animate();
 };
 
 Game.MODES = {
@@ -38,6 +39,11 @@ Game.CURSOR_STATES = {
   "dragging": 1,
 };
 
+Game.prototype.animate = function() {
+  requestAnimationFrame(this.animate.bind(this));
+  TWEEN.update();
+};
+
 Game.prototype.setupHeader_ = function() {
   this.scoreBoard_ = new Game.ScoreBoard(this.mode);
   this.scoreBoard_.updateScore(0);
@@ -54,6 +60,7 @@ Game.prototype.bindEvents_ = function() {
 };
 
 Game.prototype.resize_ = function(){
+  Game.helpers.calcCenterOffsetForDots(true);
   this.board.redraw();
 };
 

@@ -13,7 +13,6 @@ Game.helpers.distance = function(p1, p2){
   ys = p2.y - p1.y;
   ys = ys * ys;
 
-
   return Math.round(Math.sqrt( xs + ys ), 2);
 };
 
@@ -22,7 +21,11 @@ Game.helpers.angle = function(p1, p2) {
       Math.atan2(p2.x - p1.x, p2.y - p1.y) * 180 / Math.PI, 2);
 }
 
-Game.helpers.calcCenterOffsetForDots = function() {
+Game.helpers.calcCenterOffsetForDots = function(resized) {
+  if(this.memoized && !resized) {
+    return this.memoized;
+  }
+
   var headerHeight = $("body > header").outerHeight();
   var bodyWidth = $("body").width();
   var bodyHeight = $("body").height();
@@ -35,15 +38,6 @@ Game.helpers.calcCenterOffsetForDots = function() {
   var offsetLeft = Math.max((bodyWidth / 2) - (boardWidth / 2), 0) +
     (Game.Dot.PADDING / 2);
 
-  return {offsetTop: offsetTop, offsetLeft: offsetLeft};
+  this.memoized = {offsetTop: offsetTop, offsetLeft: offsetLeft};
+  return this.memoized;
 }
-
-Game.helpers.containsObject = function(obj, list) {
-  for (var i = 0; i < list.length; i++) {
-    if (list[i] === obj) {
-      return true;
-    }
-  };
-
-  return false;
-};

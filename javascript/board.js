@@ -1,7 +1,6 @@
 Game.Board = function(board$) {
   this.el$_ = board$;
   this.body$ = $("body");
-  this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
   this.dots_ = [];
   this.lines_ = [];
   this.selectedDots_ = [];
@@ -15,11 +14,9 @@ Game.Board.NUM_ROWS = 6;
 Game.Board.NUM_COLS = 6;
 
 Game.Board.prototype.redraw = function() {
-  this.centerOffsets = Game.helpers.calcCenterOffsetForDots();
   for (var i = 0; i < this.dots_.length; i++) {
     var position = this.dots_[i].getGridPosition();
-    this.dots_[i].setGridPosition(
-        position.row, position.col, this.centerOffsets);
+    this.dots_[i].setGridPosition(position.row, position.col);
   };
 };
 
@@ -47,20 +44,12 @@ Game.Board.prototype.setupBoard_ = function() {
  */
 Game.Board.prototype.removedDot = function(dot) {
   var dotPosition = dot.getGridPosition();
-  var dotsToAnimate = [];
-  // I add these to an array essentially so I don't modify my dots array as I
-  // itterate.
-  this.forEachDotAboveDot(dot, function(dot){
-    dotsToAnimate.push(dot);
-  });
 
-  for (var i = 0; i < dotsToAnimate.length; i++) {
-    var dotsToAnimatePosition = dotsToAnimate[i].getNewGridPosition();
-    var newRow = dotsToAnimatePosition.row + 1;
-    dotsToAnimate[i].setNewGridPosition(
-        new Game.Point(newRow, dotsToAnimatePosition.col))
-    dotsToAnimate[i].animateNewGridPosition();
-  };
+  this.forEachDotAboveDot(dot, function(aboveDot, i){
+    var dotAbovePosition = aboveDot.getGridPosition();
+    var newRow = dotAbovePosition.row + 1;
+    aboveDot.setGridPosition(newRow, dotAbovePosition.col)
+  });
 
   this.sliceDotOutOfColumn(dot);
   dot.remove();
@@ -69,7 +58,7 @@ Game.Board.prototype.removedDot = function(dot) {
 
 Game.Board.prototype.newDot = function(row, col) {
   var dot = new Game.Dot();
-  dot.setGridPosition(row, col, this.centerOffsets);
+  dot.setGridPosition(row, col);
   dot.appendTo(this.el$_);
   this.dots_.push(dot);
   dot.domReady();
@@ -79,7 +68,7 @@ Game.Board.prototype.newDot = function(row, col) {
 
 Game.Board.prototype.prependDot = function(row, col) {
   var dot = new Game.Dot();
-  dot.setGridPosition(row, col, this.centerOffsets);
+  dot.setGridPosition(row, col);
   dot.appendTo(this.el$_);
   this.dots_.push(dot);
   this.dotsByColumn_[col].unshift(dot);
@@ -109,7 +98,7 @@ Game.Board.prototype.forEachDotAboveDot = function(dot, fn) {
   var dotPosition = dot.getGridPosition();
   var dotsAbove = this.dotsByColumn_[dotPosition.col].slice(0, dotPosition.row);
   for (var i = 0; i < dotsAbove.length; i++) {
-    fn(dotsAbove[i]);
+    fn(dotsAbove[i], i);
   };
 }
 
